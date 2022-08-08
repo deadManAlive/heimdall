@@ -1,4 +1,6 @@
-import cv2, threading, queue
+import cv2
+import threading
+import queue
 
 class ThreadingClass:
   # initiate threading class

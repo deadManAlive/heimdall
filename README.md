@@ -1,5 +1,7 @@
-# People-Counting-in-Real-Time
+# Heimdall
 People Counting in Real-Time using live video stream/IP camera in OpenCV.
+
+> Forked from https://github.com/saimj7/People-Counting-in-Real-Time
 
 > This is an improvement/modification to https://www.pyimagesearch.com/2018/08/13/opencv-people-counter/
 

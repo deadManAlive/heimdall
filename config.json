@@ -1,0 +1,16 @@
+{
+    "debug": true,
+    "thread": false,
+    "alert": false,
+    "log": false,
+    "timer": false,
+    "export": false,
+    "prototxt": "mobilenet_ssd\\MobileNetSSD_deploy.prototxt",
+    "model": "mobilenet_ssd\\MobileNetSSD_deploy.caffemodel",
+    "dbgvideo": "videos\\example_01.mp4",
+    "email": "",
+    "camaddr": 0,
+    "threshold": 10,
+    "fskip": 30,
+    "confidence": 0.4
+}
