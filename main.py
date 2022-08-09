@@ -1,7 +1,6 @@
-from mylib.centroidtracker import CentroidTracker
-from mylib.trackableobject import TrackableObject
-from mylib.mailer import Mailer
-from mylib import thread
+from modules.centroidtracker import CentroidTracker
+from modules.trackableobject import TrackableObject
+from modules import thread
 
 from imutils.video import VideoStream
 from imutils.video import FPS
@@ -64,7 +63,7 @@ def run():
     totalDown = 0
     totalUp = 0
     x = []
-    empty=[]
+    empty0=[]
     empty1=[]
 
     # start the frames per second throughput estimator
@@ -182,7 +181,7 @@ def run():
         # object crosses this line we will determine whether they were
         # moving 'up' or 'down'
         cv2.line(frame, (0, H // 2), (W, H // 2), (0, 255, 255), 2)
-        cv2.putText(frame, "-Prediction border - Entrance-", (10, H - ((i * 20) + 200)),
+        cv2.putText(frame, "- Entrance Line -", (10, H - ((i * 20) + 200)),
             cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 255), 2)
 
         # use the centroid tracker to associate the (1) old object
@@ -217,7 +216,7 @@ def run():
                     # line, count the object
                     if direction < 0 and centroid[1] < H // 2:
                         totalUp += 1
-                        empty.append(totalUp)
+                        empty0.append(totalUp)
                         to.counted = True
 
                     # if the direction is positive (indicating the object
@@ -226,21 +225,11 @@ def run():
                     elif direction > 0 and centroid[1] > H // 2:
                         totalDown += 1
                         empty1.append(totalDown)
-                        #print(empty1[-1])
-                        # if the people limit exceeds over threshold, send an email alert
-                        if sum(x) >= cfg["threshold"]:
-                            cv2.putText(frame, "-ALERT: People limit exceeded-", (10, frame.shape[0] - 80),
-                                cv2.FONT_HERSHEY_COMPLEX, 0.5, (0, 0, 255), 2)
-                            if cfg["alert"]:
-                                print("[INFO] Sending email alert..")
-                                Mailer().send(cfg["email"])
-                                print("[INFO] Alert sent")
-
                         to.counted = True
                         
                     x = []
                     # compute the sum of total people inside
-                    x.append(len(empty1)-len(empty))
+                    x.append(len(empty1)-len(empty0))
                     #print("Total people inside:", x)
 
 
@@ -277,7 +266,7 @@ def run():
         # Initiate a simple log to save data at end of the day
         if cfg["log"]:
             datetimee = [datetime.datetime.now()]
-            d = [datetimee, empty1, empty, x]
+            d = [datetimee, empty1, empty0, x]
             export_data = zip_longest(*d, fillvalue = '')
 
             with open('Log.csv', 'w', newline='') as myfile:
