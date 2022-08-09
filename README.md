@@ -40,34 +40,31 @@ People Counting in Real-Time using live video stream/IP camera in OpenCV.
 
 ## Running Inference
 - First up, install all the required Python dependencies:
-```
-pip install -r requirements.txt
-```
-> If `dlib` installation gives error, install latest Visual Studio with "Desktop development with C++" workload selected (include "C++ CMake tools for Windows") and install latest cmake library with `pip install cmake`, then install latest `dlib` with `pip install dlib`.
+    ```
+    pip install -r requirements.txt
+    ```
+    > If `dlib` installation gives error, install latest Visual Studio with "Desktop development with C++" workload selected (include "C++ CMake tools for Windows") and install latest cmake library with `pip install cmake`, then install latest `dlib` with `pip install dlib`.
 - To run inference on a test video file, head into the directory/use the command: 
-```
-python main.py
-```
+    ```
+    python main.py
+    ```
 - To run inference on an IP camera, first setup your camera url in `config.json`:
 
-```json
-// Enter the ip camera url (e.g., "cammadr": "http://191.138.0.100:8040/video")
-"camaddr": 0,
-```
+    ```json
+    "camaddr": "http://191.138.0.100:8040/video",
+    ```
+    Set `"camaddr"` to `0` for webcam.
 - Then run with the command:
-```
-python main.py
-```
-> Set `camaddr` = 0 for webcam.
+    ```
+    python main.py
+    ```
 
 ## Features
 ***1. Threading:***
-- Multi-Threading is implemented in 'mylib/thread.py'. If you ever see a lag/delay in your real-time stream, consider using it.
+- Multi-Threading is implemented in 'modules/thread.py'. If you ever see a lag/delay in your real-time stream, consider using it.
 - Threading removes OpenCV's internal buffer (which basically stores the new frames yet to be processed until your system processes the old frames) and thus reduces the lag/increases fps. 
 - If your system is not capable of simultaneously processing and outputting the result, you might see a delay in the stream. This is where threading comes into action.
-- It is most suitable for solid performance on complex real-time applications. To use threading:
-
-``` set Thread = True in config. ```
+- It is most suitable for solid performance on complex real-time applications. To use threading, set `"thread"` to `true` in `config.json`.
 
 
 ***2. Scheduler:***
@@ -75,23 +72,23 @@ python main.py
 - This is extremely useful in a business scenario, for instance, you can run it only at your desired time (9-5?).
 - Variables and memory would be reset == less load on your machine.
 
-```python
-##Runs at every day (9:00 am). You can change it.
-schedule.every().day.at("9:00").do(run)
-```
+    ```python
+    ## Runs at every day (9:00 am). You can change it.
+    schedule.every().day.at("9:00").do(run)
+    ```
 
 ***3. Timer:***
 - Configure stopping the software after a certain time, e.g., 30 min or 9 hours from now.
 - All you have to do is set your desired time and run the script.
 
-```python
-if Timer:
-	# Automatic timer to stop the live stream. Set to 8 hours (28800s).
-	t1 = time.time()
-	num_seconds=(t1-t0)
-	if num_seconds > 28800:
-		break
-```
+    ```python
+    if Timer:
+        # Automatic timer to stop the live stream. Set to 8 hours (28800s).
+        t1 = time.time()
+        num_seconds=(t1-t0)
+        if num_seconds > 28800:
+            break
+    ```
 
 ***4. Simple log:***
 - Logs all data at end of the day.
@@ -110,8 +107,12 @@ if Timer:
 - https://pypi.org/project/schedule/
 
 ## To Do
-- [ ] Web API remote monitoring (data only).
-    - [ ] REST
-    - [ ] WebSocket/Polling
-- [ ] **[issues]** Multithreading not working in `debug` mode.
-- [ ] Remove (*or improve?*) trivial features: scheduler and timer.
+- **Remote monitoring** (data only).
+    - [ ] via REST API
+    - [ ] via WebSocket/Polling
+- **Features**
+    - [x] Remove email alert feature
+    - [ ] Improve logging feature.
+    - [ ] Remove (*or improve?*) trivial features: scheduler and timer.
+- **Issues**
+    - [ ] Multithreading not working in `debug` mode.
