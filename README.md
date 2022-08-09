@@ -3,13 +3,10 @@ People Counting in Real-Time using live video stream/IP camera in OpenCV.
 
 > Forked from https://github.com/saimj7/People-Counting-in-Real-Time
 
-> This is an improvement/modification to https://www.pyimagesearch.com/2018/08/13/opencv-people-counter/
-
-> Refer to added [Features](#features). Also, added support for an IP camera.
 
 <div align="center">
 <img src=https://imgur.com/SaF1kk3.gif" width=550>
-<p>Live demo</p>
+<p>Live demo of original repo</p>
 </div>
 
 - The primary aim is to use the project as a business perspective, ready to scale.
@@ -25,7 +22,7 @@ People Counting in Real-Time using live video stream/IP camera in OpenCV.
 * [Running Inference](#running-inference)
 * [Features](#features)
 * [References](#references)
-* [Next Steps](#next-steps)
+* [To Do](#to-do)
 
 ## Simple Theory
 **SSD detector:**
@@ -46,38 +43,25 @@ People Counting in Real-Time using live video stream/IP camera in OpenCV.
 ```
 pip install -r requirements.txt
 ```
-> The requirements will be updated timely, but note that there can always be version conflicts between the dependencies themselves and other factors like OS, hardware etc.
+> If `dlib` installation gives error, install latest Visual Studio with "Desktop development with C++" workload selected (include "C++ CMake tools for Windows") and install latest cmake library with `pip install cmake`, then install latest `dlib` with `pip install dlib`.
 - To run inference on a test video file, head into the directory/use the command: 
 ```
-python run.py --prototxt mobilenet_ssd/MobileNetSSD_deploy.prototxt --model mobilenet_ssd/MobileNetSSD_deploy.caffemodel --input videos/example_01.mp4
+python main.py
 ```
-- To run inference on an IP camera, first setup your camera url in 'mylib/config.py':
+- To run inference on an IP camera, first setup your camera url in `config.json`:
 
-```
-# Enter the ip camera url (e.g., url = 'http://191.138.0.100:8040/video')
-url = ''
+```json
+// Enter the ip camera url (e.g., "cammadr": "http://191.138.0.100:8040/video")
+"camaddr": 0,
 ```
 - Then run with the command:
 ```
-python run.py --prototxt mobilenet_ssd/MobileNetSSD_deploy.prototxt --model mobilenet_ssd/MobileNetSSD_deploy.caffemodel
+python main.py
 ```
-> Set url = 0 for webcam.
+> Set `camaddr` = 0 for webcam.
 
 ## Features
-The following is an example of the added features. Note: You can easily on/off them in the config. options (mylib/config.py):
-
-<img src="https://imgur.com/Lr8mdUW.png" width=500>
-
-***1. Real-Time alert:***
-- If selected, we send an email alert in real-time. Use case: If the total number of people (say 10 or 30) exceeded in a store/building, we simply alert the staff. 
-- You can set the max. people limit in config. (``` Threshold = 10 ```).
-- This is pretty useful considering the COVID-19 scenario. 
-<img src="https://imgur.com/35Yf1SR.png" width=350>
-
-- Note: To setup the sender email, please refer the instructions inside 'mylib/mailer.py'. Setup receiver email in the config.
-
-
-***2. Threading:***
+***1. Threading:***
 - Multi-Threading is implemented in 'mylib/thread.py'. If you ever see a lag/delay in your real-time stream, consider using it.
 - Threading removes OpenCV's internal buffer (which basically stores the new frames yet to be processed until your system processes the old frames) and thus reduces the lag/increases fps. 
 - If your system is not capable of simultaneously processing and outputting the result, you might see a delay in the stream. This is where threading comes into action.
@@ -86,21 +70,21 @@ The following is an example of the added features. Note: You can easily on/off t
 ``` set Thread = True in config. ```
 
 
-***3. Scheduler:***
+***2. Scheduler:***
 - Automatic scheduler to start the software. Configure to run at every second, minute, day, or Monday to Friday.
 - This is extremely useful in a business scenario, for instance, you can run it only at your desired time (9-5?).
 - Variables and memory would be reset == less load on your machine.
 
-```
+```python
 ##Runs at every day (9:00 am). You can change it.
 schedule.every().day.at("9:00").do(run)
 ```
 
-***4. Timer:***
+***3. Timer:***
 - Configure stopping the software after a certain time, e.g., 30 min or 9 hours from now.
 - All you have to do is set your desired time and run the script.
 
-```
+```python
 if Timer:
 	# Automatic timer to stop the live stream. Set to 8 hours (28800s).
 	t1 = time.time()
@@ -109,13 +93,14 @@ if Timer:
 		break
 ```
 
-***5. Simple log:***
+***4. Simple log:***
 - Logs all data at end of the day.
 - Useful for footfall analysis.
 <img src="https://imgur.com/CV2nCjx.png" width=400>
 
 ## References
 ***Main:***
+- Main repo: https://github.com/saimj7/People-Counting-in-Real-Time
 - SSD paper: https://arxiv.org/abs/1512.02325
 - MobileNet paper: https://arxiv.org/abs/1704.04861
 - Centroid tracker: https://www.pyimagesearch.com/2018/07/23/simple-object-tracking-with-opencv/
@@ -124,30 +109,9 @@ if Timer:
 - https://towardsdatascience.com/review-ssd-single-shot-detector-object-detection-851a94607d11
 - https://pypi.org/project/schedule/
 
-## Next steps
-- Train the SSD on human data (with a top-down view).
-- Experiment with other detectors and benchmark the results on computationally less expensive embedded hardware. 
-- Evaluate the performance on multiple IP cameras.
-
-<p>&nbsp;</p>
-
----
-
-## Thanks for the read & have fun!
-
-> To get started/contribute quickly (optional) ...
-
-- **Option 1**
-    - 🍴 Fork this repo and pull request!
-
-- **Option 2**
-    - 👯 Clone this repo:
-    ```
-    $ git clone https://github.com/saimj7/People-Counting-in-Real-Time.git
-    ```
-
-- **Roll it!**
-
----
-
-saimj7/ 19-08-2020 © <a href="http://saimj7.github.io" target="_blank">Sai_Mj</a>.
+## To Do
+- [ ] Web API remote monitoring (data only).
+    - [ ] REST
+    - [ ] WebSocket/Polling
+- [ ] **[issues]** Multithreading not working in `debug` mode.
+- [ ] Remove (*or improve?*) trivial features: scheduler and timer.
