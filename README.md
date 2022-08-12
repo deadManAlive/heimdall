@@ -108,7 +108,7 @@ People Counting in Real-Time using live video stream/IP camera in OpenCV.
 
 ## To Do
 - **Remote monitoring** (data only).
-    - [ ] via REST API
+    - [x] via REST API
     - [ ] via WebSocket/Polling
 - **Features**
     - [x] Remove email alert feature
