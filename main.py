@@ -25,27 +25,26 @@ CLASSES = ["background", "aeroplane", "bicycle", "bird", "boat",
            "dog", "horse", "motorbike", "person", "pottedplant", "sheep",
            "sofa", "train", "tvmonitor"]
 
-def api(totalDown, totalUp, totalInside):
+def api(totalDown, totalUp):
     app = FastAPI()
 
     setattr(app, "totalDown", totalDown)
     setattr(app, "totalUp", totalUp)
-    setattr(app, "totalInside", totalInside)
 
     @app.get("/all")
     async def root():
         return {
             "Down": app.totalDown.value,
             "Up": app.totalUp.value,
-            "Inside": app.totalInside.value
+            "Inside": app.totalDown.value - app.totalUp.value
         }
 
     return app
 
-def server(totalDown, totalUp, totalInside):
-    uvicorn.run(api(totalDown, totalUp, totalInside), port=8000, log_level="info")
+def server(totalDown, totalUp):
+    uvicorn.run(api(totalDown, totalUp), port=8000, log_level="info")
 
-def run(totalDown, totalUp, totalInside):
+def run(totalDown, totalUp):
     cfg = json.load(open("config.json"))
 
     # initialize the list of class labels MobileNet SSD was trained to
@@ -86,8 +85,9 @@ def run(totalDown, totalUp, totalInside):
     # totalDown = 0
     # totalUp = 0
     # totalInside = 0
-    empty0 = []
-    empty1 = []
+    inside = 0
+    # empty0 = []
+    # empty1 = []
 
     # start the frames per second throughput estimator
     fps = FPS().start()
@@ -238,7 +238,7 @@ def run(totalDown, totalUp, totalInside):
                     # line, count the object
                     if direction < 0 and centroid[1] < H // 2:
                         totalUp.value += 1
-                        empty0.append(totalUp.value)
+                        # empty0.append(totalUp.value)
                         to.counted = True
 
                     # if the direction is positive (indicating the object
@@ -246,12 +246,13 @@ def run(totalDown, totalUp, totalInside):
                     # center line, count the object
                     elif direction > 0 and centroid[1] > H // 2:
                         totalDown.value += 1
-                        empty1.append(totalDown.value)
+                        # empty1.append(totalDown.value)
                         to.counted = True
 
-                    totalInside.value = len(empty1) - len(empty0)
+                    inside = totalDown.value - totalUp.value
                     # compute the sum of total people inside
                     # print("Total people inside:", x)
+                    # TODO: optimization: inside is unnecessary sync'd object.
 
             # store the trackable object in our dictionary
             trackableObjects[objectID] = to
@@ -271,7 +272,7 @@ def run(totalDown, totalUp, totalInside):
         ]
 
         info2 = [
-            ("Total people inside", totalInside.value),
+            ("Total people inside", inside),
         ]
 
         # Display the output
@@ -284,6 +285,8 @@ def run(totalDown, totalUp, totalInside):
             cv2.putText(frame, text, (265, H - ((i * 20) + 60)), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
 
         # Initiate a simple log to save data at end of the day
+        # TODO: optimize implementation (move outside main loop?)
+        """
         if cfg["b_log"]:
             datetimee = [datetime.datetime.now()]
             d = [datetimee, empty1, empty0, totalInside.value]
@@ -293,6 +296,7 @@ def run(totalDown, totalUp, totalInside):
                 wr = csv.writer(myfile, quoting=csv.QUOTE_ALL)
                 wr.writerow(("End Time", "In", "Out", "Total Inside"))
                 wr.writerows(export_data)
+        """
 
         # check to see if we should write the frame to disk
         if writer is not None:
@@ -342,10 +346,9 @@ def run(totalDown, totalUp, totalInside):
 if __name__ == "__main__":
     totalDown = mp.Value("i", 0)
     totalUp = mp.Value("i", 0)
-    totalInside = mp.Value("i", 0)
 
-    p1 = mp.Process(target=run, args=(totalDown, totalUp, totalInside, ))
-    p2 = mp.Process(target=server, args=(totalDown, totalUp, totalInside, ))
+    p1 = mp.Process(target=run, args=(totalDown, totalUp, ))
+    p2 = mp.Process(target=server, args=(totalDown, totalUp, ))
 
     p1.start()
     p2.start()
