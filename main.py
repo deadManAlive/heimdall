@@ -5,7 +5,10 @@ from modules import thread
 from imutils.video import VideoStream
 from imutils.video import FPS
 from itertools import zip_longest
+from fastapi import FastAPI
 
+import uvicorn
+import multiprocessing as mp
 import time
 import csv
 import numpy as np
@@ -22,8 +25,27 @@ CLASSES = ["background", "aeroplane", "bicycle", "bird", "boat",
            "dog", "horse", "motorbike", "person", "pottedplant", "sheep",
            "sofa", "train", "tvmonitor"]
 
+def api(totalDown, totalUp, totalInside):
+    app = FastAPI()
 
-def run():
+    setattr(app, "totalDown", totalDown)
+    setattr(app, "totalUp", totalUp)
+    setattr(app, "totalInside", totalInside)
+
+    @app.get("/all")
+    async def root():
+        return {
+            "Down": app.totalDown.value,
+            "Up": app.totalUp.value,
+            "Inside": app.totalInside.value
+        }
+
+    return app
+
+def server(totalDown, totalUp, totalInside):
+    uvicorn.run(api(totalDown, totalUp, totalInside), port=8000, log_level="info")
+
+def run(totalDown, totalUp, totalInside):
     cfg = json.load(open("config.json"))
 
     # initialize the list of class labels MobileNet SSD was trained to
@@ -61,9 +83,9 @@ def run():
     # initialize the total number of frames processed thus far, along
     # with the total number of objects that have moved either up or down
     totalFrames = 0
-    totalDown = 0
-    totalUp = 0
-    x = []
+    # totalDown = 0
+    # totalUp = 0
+    # totalInside = 0
     empty0 = []
     empty1 = []
 
@@ -215,19 +237,19 @@ def run():
                     # is moving up) AND the centroid is above the center
                     # line, count the object
                     if direction < 0 and centroid[1] < H // 2:
-                        totalUp += 1
-                        empty0.append(totalUp)
+                        totalUp.value += 1
+                        empty0.append(totalUp.value)
                         to.counted = True
 
                     # if the direction is positive (indicating the object
                     # is moving down) AND the centroid is below the
                     # center line, count the object
                     elif direction > 0 and centroid[1] > H // 2:
-                        totalDown += 1
-                        empty1.append(totalDown)
+                        totalDown.value += 1
+                        empty1.append(totalDown.value)
                         to.counted = True
 
-                    x = [len(empty1) - len(empty0)]
+                    totalInside.value = len(empty1) - len(empty0)
                     # compute the sum of total people inside
                     # print("Total people inside:", x)
 
@@ -243,13 +265,13 @@ def run():
 
         # construct a tuple of information we will be displaying on the
         info = [
-            ("Exit", totalUp),
-            ("Enter", totalDown),
+            ("Exit", totalUp.value),
+            ("Enter", totalDown.value),
             ("Status", status),
         ]
 
         info2 = [
-            ("Total people inside", x),
+            ("Total people inside", totalInside.value),
         ]
 
         # Display the output
@@ -264,7 +286,7 @@ def run():
         # Initiate a simple log to save data at end of the day
         if cfg["b_log"]:
             datetimee = [datetime.datetime.now()]
-            d = [datetimee, empty1, empty0, x]
+            d = [datetimee, empty1, empty0, totalInside.value]
             export_data = zip_longest(*d, fillvalue='')
 
             with open('Log.csv', 'w', newline='') as myfile:
@@ -318,4 +340,12 @@ def run():
 
 
 if __name__ == "__main__":
-    run()
+    totalDown = mp.Value("i", 0)
+    totalUp = mp.Value("i", 0)
+    totalInside = mp.Value("i", 0)
+
+    p1 = mp.Process(target=run, args=(totalDown, totalUp, totalInside, ))
+    p2 = mp.Process(target=server, args=(totalDown, totalUp, totalInside, ))
+
+    p1.start()
+    p2.start()
