@@ -29,18 +29,18 @@ def run():
         "sofa", "train", "tvmonitor"]
 
     # load our serialized model from disk
-    net = cv2.dnn.readNetFromCaffe(cfg["prototxt"], cfg["model"])
+    net = cv2.dnn.readNetFromCaffe(cfg["s_prototxt"], cfg["s_model"])
 
     # if a video path was not supplied, grab a reference to the ip camera
-    if not cfg["debug"]:
+    if not cfg["b_debug"]:
         print("[INFO] Starting the live stream..")
-        vs = VideoStream(cfg["camaddr"]).start()
+        vs = VideoStream(cfg["i_camaddr"]).start()
         time.sleep(2.0)
 
     # otherwise, grab a reference to the video file
     else:
         print("[INFO] Starting the video..")
-        vs = cv2.VideoCapture(cfg["dbgvideo"])
+        vs = cv2.VideoCapture(cfg["s_dbgvideo"])
 
     # initialize the video writer (we'll instantiate later if need be)
     writer = None
@@ -69,19 +69,19 @@ def run():
     # start the frames per second throughput estimator
     fps = FPS().start()
 
-    if cfg["thread"]:
-        vs = thread.ThreadingClass(cfg["camaddr"])
+    if cfg["b_thread"]:
+        vs = thread.ThreadingClass(cfg["i_camaddr"])
 
     # loop over frames from the video stream
     while True:
         # grab the next frame and handle if we are reading from either
         # VideoCapture or VideoStream
         frame = vs.read()
-        frame = frame[1] if cfg["debug"] else frame
+        frame = frame[1] if cfg["b_debug"] else frame
 
         # if we are viewing a video and we did not grab a frame then we
         # have reached the end of the video
-        if cfg["dbgvideo"] is not None and frame is None:
+        if cfg["s_dbgvideo"] is not None and frame is None:
             break
 
         # resize the frame to have a maximum width of 500 pixels (the
@@ -96,7 +96,7 @@ def run():
 
         # if we are supposed to be writing a video to disk, initialize
         # the writer
-        if cfg["export"] and writer is None:
+        if cfg["b_export"] and writer is None:
             filename = "exports\\exp{}.mp4".format(int(time.time()))
 
             fourcc = cv2.VideoWriter_fourcc(*"mp4v")
@@ -110,7 +110,7 @@ def run():
 
         # check to see if we should run a more computationally expensive
         # object detection method to aid our tracker
-        if totalFrames % cfg["fskip"] == 0:
+        if totalFrames % cfg["i_fskip"] == 0:
             # set the status and initialize our new set of object trackers
             status = "Detecting"
             trackers = []
@@ -129,7 +129,7 @@ def run():
 
                 # filter out weak detections by requiring a minimum
                 # confidence
-                if confidence > cfg["confidence"]:
+                if confidence > cfg["f_confidence"]:
                     # extract the index of the class label from the
                     # detections list
                     idx = int(detections[0, 0, i, 1])
@@ -264,7 +264,7 @@ def run():
             cv2.putText(frame, text, (265, H - ((i * 20) + 60)), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
 
         # Initiate a simple log to save data at end of the day
-        if cfg["log"]:
+        if cfg["b_log"]:
             datetimee = [datetime.datetime.now()]
             d = [datetimee, empty1, empty0, x]
             export_data = zip_longest(*d, fillvalue = '')
@@ -291,7 +291,7 @@ def run():
         totalFrames += 1
         fps.update()
 
-        if cfg["timer"]:
+        if cfg["b_timer"]:
             # Automatic timer to stop the live stream. Set to 8 hours (28800s).
             t1 = time.time()
             num_seconds=(t1-t0)
@@ -313,7 +313,7 @@ def run():
     #     vs.release()
     
     # issue 15
-    if cfg["thread"]:
+    if cfg["b_thread"]:
         vs.release()
 
     # close any open windows
