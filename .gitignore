@@ -2,6 +2,9 @@
 .venv/**
 .vscode/**
 __pycache__/
+.idea/**
 
 # files
 *.csv
+videos/**
+!videos/example_01.mp4

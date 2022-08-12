@@ -17,16 +17,17 @@ import json
 
 t0 = time.time()
 
-def run():
+CLASSES = ["background", "aeroplane", "bicycle", "bird", "boat",
+           "bottle", "bus", "car", "cat", "chair", "cow", "diningtable",
+           "dog", "horse", "motorbike", "person", "pottedplant", "sheep",
+           "sofa", "train", "tvmonitor"]
 
+
+def run():
     cfg = json.load(open("config.json"))
 
     # initialize the list of class labels MobileNet SSD was trained to
     # detect
-    CLASSES = ["background", "aeroplane", "bicycle", "bird", "boat",
-        "bottle", "bus", "car", "cat", "chair", "cow", "diningtable",
-        "dog", "horse", "motorbike", "person", "pottedplant", "sheep",
-        "sofa", "train", "tvmonitor"]
 
     # load our serialized model from disk
     net = cv2.dnn.readNetFromCaffe(cfg["s_prototxt"], cfg["s_model"])
@@ -63,8 +64,8 @@ def run():
     totalDown = 0
     totalUp = 0
     x = []
-    empty0=[]
-    empty1=[]
+    empty0 = []
+    empty1 = []
 
     # start the frames per second throughput estimator
     fps = FPS().start()
@@ -87,7 +88,7 @@ def run():
         # resize the frame to have a maximum width of 500 pixels (the
         # less data we have, the faster we can process it), then convert
         # the frame from BGR to RGB for dlib
-        frame = imutils.resize(frame, width = 500)
+        frame = imutils.resize(frame, width=500)
         rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
         # if the frame dimensions are empty, set them
@@ -143,7 +144,6 @@ def run():
                     box = detections[0, 0, i, 3:7] * np.array([W, H, W, H])
                     (startX, startY, endX, endY) = box.astype("int")
 
-
                     # construct a dlib rectangle object from the bounding
                     # box coordinates and then start the dlib correlation
                     # tracker
@@ -182,7 +182,7 @@ def run():
         # moving 'up' or 'down'
         cv2.line(frame, (0, H // 2), (W, H // 2), (0, 255, 255), 2)
         cv2.putText(frame, "- Entrance Line -", (10, H - ((i * 20) + 200)),
-            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 255), 2)
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 255), 2)
 
         # use the centroid tracker to associate the (1) old object
         # centroids with (2) the newly computed object centroids
@@ -226,12 +226,10 @@ def run():
                         totalDown += 1
                         empty1.append(totalDown)
                         to.counted = True
-                        
-                    x = []
-                    # compute the sum of total people inside
-                    x.append(len(empty1)-len(empty0))
-                    #print("Total people inside:", x)
 
+                    x = [len(empty1) - len(empty0)]
+                    # compute the sum of total people inside
+                    # print("Total people inside:", x)
 
             # store the trackable object in our dictionary
             trackableObjects[objectID] = to
@@ -240,21 +238,21 @@ def run():
             # object on the output frame
             text = "ID {}".format(objectID)
             cv2.putText(frame, text, (centroid[0] - 10, centroid[1] - 10),
-                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
             cv2.circle(frame, (centroid[0], centroid[1]), 4, (255, 255, 255), -1)
 
         # construct a tuple of information we will be displaying on the
         info = [
-        ("Exit", totalUp),
-        ("Enter", totalDown),
-        ("Status", status),
+            ("Exit", totalUp),
+            ("Enter", totalDown),
+            ("Status", status),
         ]
 
         info2 = [
-        ("Total people inside", x),
+            ("Total people inside", x),
         ]
 
-                # Display the output
+        # Display the output
         for (i, (k, v)) in enumerate(info):
             text = "{}: {}".format(k, v)
             cv2.putText(frame, text, (10, H - ((i * 20) + 20)), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), 2)
@@ -267,13 +265,13 @@ def run():
         if cfg["b_log"]:
             datetimee = [datetime.datetime.now()]
             d = [datetimee, empty1, empty0, x]
-            export_data = zip_longest(*d, fillvalue = '')
+            export_data = zip_longest(*d, fillvalue='')
 
             with open('Log.csv', 'w', newline='') as myfile:
                 wr = csv.writer(myfile, quoting=csv.QUOTE_ALL)
                 wr.writerow(("End Time", "In", "Out", "Total Inside"))
                 wr.writerows(export_data)
-                
+
         # check to see if we should write the frame to disk
         if writer is not None:
             writer.write(frame)
@@ -294,7 +292,7 @@ def run():
         if cfg["b_timer"]:
             # Automatic timer to stop the live stream. Set to 8 hours (28800s).
             t1 = time.time()
-            num_seconds=(t1-t0)
+            num_seconds = (t1 - t0)
             if num_seconds > 28800:
                 break
 
@@ -303,7 +301,6 @@ def run():
     print("[INFO] elapsed time: {:.2f}".format(fps.elapsed()))
     print("[INFO] approx. FPS: {:.2f}".format(fps.fps()))
 
-
     # # if we are not using a video file, stop the camera video stream
     # if not args.get("input", False):
     #     vs.stop()
@@ -311,7 +308,7 @@ def run():
     # # otherwise, release the video file pointer
     # else:
     #     vs.release()
-    
+
     # issue 15
     if cfg["b_thread"]:
         vs.release()
