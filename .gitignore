@@ -8,3 +8,5 @@ __pycache__/
 *.csv
 videos/**
 !videos/example_01.mp4
+.python-version
+
