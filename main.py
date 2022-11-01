@@ -278,7 +278,7 @@ def run(totalDown, totalUp):
         # Display the output
         for (i, (k, v)) in enumerate(info):
             text = "{}: {}".format(k, v)
-            cv2.putText(frame, text, (10, H - ((i * 20) + 20)), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), 2)
+            cv2.putText(frame, text, (10, H - ((i * 20) + 20)), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
 
         for (i, (k, v)) in enumerate(info2):
             text = "{}: {}".format(k, v)
@@ -348,7 +348,7 @@ if __name__ == "__main__":
     totalUp = mp.Value("i", 0)
 
     p1 = mp.Process(target=run, args=(totalDown, totalUp, ))
-    p2 = mp.Process(target=server, args=(totalDown, totalUp, ))
+    # p2 = mp.Process(target=server, args=(totalDown, totalUp, ))
 
     p1.start()
-    p2.start()
+    # p2.start()
