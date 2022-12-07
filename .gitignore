@@ -9,4 +9,5 @@ __pycache__/
 videos/**
 !videos/example_01.mp4
 .python-version
+config.json
 
