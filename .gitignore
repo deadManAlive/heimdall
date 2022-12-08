@@ -3,6 +3,7 @@
 .vscode/**
 __pycache__/
 .idea/**
+build/**
 
 # files
 *.csv
@@ -10,4 +11,6 @@ videos/**
 !videos/example_01.mp4
 .python-version
 config.json
+*.c
+*.pyd
 

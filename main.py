@@ -1,22 +1,19 @@
-from modules.centroidtracker import CentroidTracker
-from modules.trackableobject import TrackableObject
-from modules import thread
-
-from imutils.video import VideoStream
-from imutils.video import FPS
-from itertools import zip_longest
-from fastapi import FastAPI
-
-import uvicorn
+import json
 import multiprocessing as mp
 import time
-import csv
-import numpy as np
-import imutils
-import dlib
+
 import cv2
-import datetime
-import json
+import dlib
+import imutils
+import numpy as np
+import uvicorn
+from fastapi import FastAPI
+from imutils.video import FPS
+from imutils.video import VideoStream
+
+from modules import thread
+from modules.centroidtracker import CentroidTracker
+from modules.trackableobject import TrackableObject
 
 t0 = time.time()
 
@@ -203,7 +200,7 @@ def run(totalDown, totalUp):
         # object crosses this line we will determine whether they were
         # moving 'up' or 'down'
         cv2.line(frame, (0, H // 2), (W, H // 2), (0, 255, 255), 2)
-        cv2.putText(frame, "- Entrance Line -", (10, H - ((i * 20) + 200)),
+        cv2.putText(frame, "- Entrance Line -", (10, H - 200),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 255), 2)
 
         # use the centroid tracker to associate the (1) old object
@@ -276,13 +273,16 @@ def run(totalDown, totalUp):
         ]
 
         # Display the output
+        print(inside)
+
+        black = (0, 0, 0)
         for (i, (k, v)) in enumerate(info):
             text = "{}: {}".format(k, v)
-            cv2.putText(frame, text, (10, H - ((i * 20) + 20)), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
+            cv2.putText(frame, text, (10, H - ((i * 20) + 20)), cv2.FONT_HERSHEY_SIMPLEX, 0.6, black, 2)
 
         for (i, (k, v)) in enumerate(info2):
             text = "{}: {}".format(k, v)
-            cv2.putText(frame, text, (265, H - ((i * 20) + 60)), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
+            cv2.putText(frame, text, (265, H - ((i * 20) + 60)), cv2.FONT_HERSHEY_SIMPLEX, 0.6, black, 2)
 
         # Initiate a simple log to save data at end of the day
         # TODO: optimize implementation (move outside main loop?)
