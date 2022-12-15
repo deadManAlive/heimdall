@@ -39,7 +39,7 @@ def api(totalDown, totalUp):
     return app
 
 def server(totalDown, totalUp):
-    uvicorn.run(api(totalDown, totalUp), port=8000, log_level="info")
+    uvicorn.run(api(totalDown, totalUp), port=8000, log_level="info", host="0.0.0.0")
 
 def run(totalDown, totalUp):
     cfg = json.load(open("config.json"))
