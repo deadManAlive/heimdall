@@ -13,4 +13,4 @@ videos/**
 config.json
 *.c
 *.pyd
-
+*.so

@@ -6,7 +6,6 @@ import dlib
 import imutils
 import numpy as np
 from imutils.video import VideoStream
-from imutils.video import FPS
 
 from modules import thread
 from modules.centroidtracker import CentroidTracker
@@ -16,6 +15,16 @@ CLASSES = ["background", "aeroplane", "bicycle", "bird", "boat",
            "bottle", "bus", "car", "cat", "chair", "cow", "diningtable",
            "dog", "horse", "motorbike", "person", "pottedplant", "sheep",
            "sofa", "train", "tvmonitor"]
+
+class Averager:
+    def __init__(self):
+        self.total = 0
+        self.num = 0
+    def add(self, n):
+        self.total += n
+        self.num += 1
+    def get(self):
+        return self.total / self.num
 
 def run(mptotal_down, mptotal_up):
     cfg = json.load(open("config.json"))
@@ -50,7 +59,7 @@ def run(mptotal_down, mptotal_up):
     if cfg["b_thread"]:
         vs = thread.ThreadingClass(cfg["i_camaddr"])
 
-    fps = FPS().start()
+    tavg = Averager()
 
     while True:
         frame = vs.read()
@@ -58,6 +67,10 @@ def run(mptotal_down, mptotal_up):
 
         if cfg["s_dbgvideo"] is not None and frame is None:
             break
+        
+        ###
+        tstart = time.perf_counter_ns()
+        ###
 
         frame = imutils.resize(frame, width=500)
         rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -133,15 +146,13 @@ def run(mptotal_down, mptotal_up):
 
         # TODO: optimize implementation (move outside main loop?)
 
-        print(inside)
+        elap = time.perf_counter_ns() - tstart
+
+        print(f"{total_frames}: {inside} in {elap/1000} ms")
         mptotal_down.value = total_down
         mptotal_up.value = total_up
         total_frames += 1
-        fps.update()
 
-    fps.stop()
-    print("[INFO] elapsed time: {:.2f}".format(fps.elapsed()))
-    print("[INFO] approx. FPS: {:.2f}".format(fps.fps()))
 
     if cfg["b_thread"]:
         vs.release()
