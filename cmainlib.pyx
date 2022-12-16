@@ -148,7 +148,7 @@ def run(mptotal_down, mptotal_up):
 
         elap = time.perf_counter_ns() - tstart
 
-        print(f"{total_frames}: {inside} in {elap/1000} ms")
+        print(f"{total_frames}: {inside} in {elap/1000000} ms")
         mptotal_down.value = total_down
         mptotal_up.value = total_up
         total_frames += 1
