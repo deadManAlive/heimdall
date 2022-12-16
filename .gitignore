@@ -4,6 +4,8 @@
 __pycache__/
 .idea/**
 build/**
+logs/**
+yolo/**
 
 # files
 *.csv

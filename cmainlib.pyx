@@ -61,11 +61,14 @@ def run(mptotal_down, mptotal_up):
 
     tavg = Averager()
 
+    bDBG = cfg["b_debug"]
+    sDBV = cfg["s_dbgvideo"]
+
     while True:
         frame = vs.read()
-        frame = frame[1] if cfg["b_debug"] else frame
+        frame = frame[1] if bDBG else frame
 
-        if cfg["s_dbgvideo"] is not None and frame is None:
+        if sDBV is not None and frame is None:
             break
         
         ###

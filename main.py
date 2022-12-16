@@ -103,6 +103,10 @@ def run(totalDown, totalUp):
         # have reached the end of the video
         if cfg["s_dbgvideo"] is not None and frame is None:
             break
+        
+        ###
+        tstart = time.perf_counter_ns()
+        ###
 
         # resize the frame to have a maximum width of 500 pixels (the
         # less data we have, the faster we can process it), then convert
@@ -273,7 +277,10 @@ def run(totalDown, totalUp):
         ]
 
         # Display the output
-        print(inside)
+        ###
+        elap = time.perf_counter_ns() - tstart
+        print(f"{totalFrames}: {inside} in {elap/1000000} ms")
+        ###
 
         black = (0, 0, 0)
         for (i, (k, v)) in enumerate(info):
@@ -348,7 +355,7 @@ if __name__ == "__main__":
     totalUp = mp.Value("i", 0)
 
     p1 = mp.Process(target=run, args=(totalDown, totalUp, ))
-    # p2 = mp.Process(target=server, args=(totalDown, totalUp, ))
+    p2 = mp.Process(target=server, args=(totalDown, totalUp, ))
 
     p1.start()
-    # p2.start()
+    p2.start()
