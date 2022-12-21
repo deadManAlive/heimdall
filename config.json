@@ -7,7 +7,7 @@
     "b_export": false,
     "s_prototxt": "mobilenet_ssd/MobileNetSSD_deploy.prototxt",
     "s_model": "mobilenet_ssd/MobileNetSSD_deploy.caffemodel",
-    "s_dbgvideo": "videos/example_01.mp4",
+    "s_dbgvideo": "videos/mrpq2-11-22.mp4",
     "s_email": "",
     "i_camaddr": 0,
     "i_threshold": 10,

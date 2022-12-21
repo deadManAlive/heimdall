@@ -8,6 +8,7 @@ import imutils
 import numpy as np
 import uvicorn
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from imutils.video import FPS
 from imutils.video import VideoStream
 
@@ -25,6 +26,14 @@ CLASSES = ["background", "aeroplane", "bicycle", "bird", "boat",
 def api(totalDown, totalUp):
     app = FastAPI()
 
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"], 
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"]
+    )
+
     setattr(app, "totalDown", totalDown)
     setattr(app, "totalUp", totalUp)
 
@@ -39,7 +48,7 @@ def api(totalDown, totalUp):
     return app
 
 def server(totalDown, totalUp):
-    uvicorn.run(api(totalDown, totalUp), port=8000, log_level="info", host="0.0.0.0")
+    uvicorn.run(api(totalDown, totalUp), port=8008, log_level="info", host="0.0.0.0")
 
 def run(totalDown, totalUp):
     cfg = json.load(open("config.json"))
